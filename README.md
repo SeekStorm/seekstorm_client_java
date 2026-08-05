@@ -22,41 +22,48 @@ seekstorm_client_java is open source licensed under the [Apache License 2.0](htt
 mvn test
 ```
 
-## Example
+## Quick Start
 
 ```java
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seekstorm.client.SeekStormClient;
-import com.seekstorm.client.model.ResultType;
-import com.seekstorm.client.model.SearchMode;
 import com.seekstorm.client.model.SearchRequest;
 import com.seekstorm.client.model.SearchResponse;
+
+ObjectMapper mapper = new ObjectMapper();
 
 SeekStormClient client = SeekStormClient.builder()
     .baseUrl("http://127.0.0.1:8080")
     .apiKey("your-apikey")
     .build();
 
-SearchRequest request = new SearchRequest(
-    "hello world",
-    null,
-    null,
-    0,
-    10,
-    ResultType.TopkCount,
-    false,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    SearchMode.Lexical
-);
+String live = client.live();
+System.out.println(live);
 
-SearchResponse response = client.search("my-index", request);
+JsonNode createIndexRequest = mapper.createObjectNode()
+    .put("index_name", "demo")
+    .set("schema", mapper.createArrayNode()
+        .add(mapper.createObjectNode()
+            .put("field", "title")
+            .put("field_type", "Text")
+            .put("store", true)
+            .put("index_lexical", true)));
+
+long indexId = client.createIndex(createIndexRequest);
+
+JsonNode document = mapper.createObjectNode()
+    .put("title", "hello seekstorm");
+client.indexDocument(String.valueOf(indexId), document);
+
+client.commitIndex(String.valueOf(indexId));
+
+SearchRequest request = SearchRequest.builder("hello")
+    .length(5)
+    .build();
+
+SearchResponse response = client.search(String.valueOf(indexId), request);
+System.out.println("Total hits: " + response.countTotal());
 ```
 
 ## IntelliSense Guidance
