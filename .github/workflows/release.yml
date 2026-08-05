@@ -28,10 +28,10 @@ jobs:
           java-version: '17'
           cache: maven
           server-id: central
-          server-username: MAVEN_CENTRAL_USERNAME
-          server-password: MAVEN_CENTRAL_PASSWORD
+          server-username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          server-password: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+          gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Set Version from Release Tag
         if: github.event_name == 'release'
